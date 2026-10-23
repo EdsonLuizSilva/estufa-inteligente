@@ -44,8 +44,8 @@ Saberemos que estamos certos quando:
 ## Delivery Milestones
 | # | Milestone | Outcome | Status | Plan |
 |---|---|---|---|---|
-| 1 | Arquitetura & Engine de Automação (TDD) | Regras de controle (ventilador, bomba, trava de água, disparo WhatsApp) testadas e 100% confiáveis | in-progress | .agents/plans/milestone-1-core-iot.plan.md |
-| 2 | Backend API & Simulador de Telemetria | Rotas para ingestão e broadcast de dados em tempo real com gerador de dados mock | in-progress | .agents/plans/milestone-1-core-iot.plan.md |
+| 1 | Arquitetura & Engine de Automação (TDD) | Regras de controle (ventilador, bomba, trava de água, disparo WhatsApp) testadas e 100% confiáveis | complete | .agents/plans/milestone-1-core-iot.plan.md |
+| 2 | Backend API & Simulador de Telemetria | Rotas para ingestão e broadcast de dados em tempo real com gerador de dados mock | complete | .agents/plans/milestone-1-core-iot.plan.md |
 | 3 | Frontend: Tela 1 (Cockpit da Estufa) | Painel visual moderno com badges de atuadores e medidores | pending | — |
 | 4 | Frontend: Tela 2 (Histórico) & Tela 3 (Reservatório) | Gráficos analíticos e interface do nível de água com alertas WhatsApp | pending | — |
 
