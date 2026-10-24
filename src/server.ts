@@ -1,8 +1,10 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
 import { z } from 'zod';
 import { AutomationEngine } from './domain/automation-engine.js';
-import { ActuatorState, SensorReadings, SoilStatus, WaterLevel } from './domain/types.js';
+import { ActuatorOverrideConfig, ActuatorState, SensorReadings, SoilStatus, WaterLevel } from './domain/types.js';
 import { WhatsAppNotifierService } from './services/whatsapp-notifier.js';
 
 const app = express();
@@ -14,6 +16,12 @@ app.use(express.json());
 // Injeção de dependências do ECC Domain
 const notifier = new WhatsAppNotifierService();
 const engine = new AutomationEngine(notifier);
+
+// Estado de override manual dos atuadores
+let currentOverride: ActuatorOverrideConfig = {
+  fan: 'AUTO',
+  waterPump: 'AUTO'
+};
 
 // Estado inicial do sistema
 let currentReadings: SensorReadings = {
@@ -29,6 +37,10 @@ let currentActuators: ActuatorState = {
   fanOn: false,
   waterPumpOn: false,
   alarmActive: false,
+  mode: {
+    fan: 'AUTO',
+    waterPump: 'AUTO'
+  },
   reason: {
     fan: 'Temperatura adequada (24.5°C): ventilador desligado.',
     waterPump: 'Solo úmido: irrigação desnecessária.',
@@ -93,8 +105,8 @@ app.post('/api/telemetry', async (req: Request, res: Response) => {
     timestamp: new Date().toISOString()
   };
 
-  // Avalia as regras de negócio pela AutomationEngine do ECC
-  currentActuators = await engine.evaluate(currentReadings);
+  // Avalia as regras de negócio pela AutomationEngine do ECC com o override ativo
+  currentActuators = await engine.evaluate(currentReadings, currentOverride);
 
   // Armazena no histórico (mantém até 100 pontos)
   historyData.push(currentReadings);
@@ -110,24 +122,63 @@ app.post('/api/telemetry', async (req: Request, res: Response) => {
 });
 
 /**
- * 3. Dados históricos para a Tela 2 (Gráficos e Estatísticas)
+ * 3. Controle Manual / Override dos Atuadores (Ventilador e Bomba de Água)
+ */
+const OverrideSchema = z.object({
+  actuator: z.enum(['fan', 'waterPump']),
+  mode: z.enum(['AUTO', 'FORCE_OFF'])
+});
+
+app.post('/api/actuators/override', async (req: Request, res: Response) => {
+  const result = OverrideSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: 'Comando de override inválido', details: result.error.format() });
+  }
+
+  const { actuator, mode } = result.data;
+  currentOverride[actuator] = mode;
+
+  // Reavalia imediatamente os atuadores com as leituras atuais
+  currentActuators = await engine.evaluate(currentReadings, currentOverride);
+
+  res.json({
+    message: `Modo do atuador ${actuator} alterado para ${mode}`,
+    actuators: currentActuators
+  });
+});
+
+/**
+ * 4. Dados históricos para a Tela 2 (Gráficos e Estatísticas)
  */
 app.get('/api/history', (req: Request, res: Response) => {
   res.json(historyData);
 });
 
 /**
- * 4. Histórico de notificações WhatsApp para a Tela 3
+ * 5. Histórico de notificações WhatsApp para a Tela 3
  */
 app.get('/api/notifications', (req: Request, res: Response) => {
   res.json(notifier.getHistory());
 });
+
+// Em produção (como no Render), serve os arquivos estáticos do frontend compilado
+const frontendDist = path.resolve(process.cwd(), 'frontend', 'dist');
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req: Request, res: Response, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`[Greenhouse Monitor Backend] Servidor rodando na porta ${PORT}`);
   console.log(`Rotas ativas:`);
   console.log(`- GET  /api/state`);
   console.log(`- POST /api/telemetry`);
+  console.log(`- POST /api/actuators/override`);
   console.log(`- GET  /api/history`);
   console.log(`- GET  /api/notifications`);
 });

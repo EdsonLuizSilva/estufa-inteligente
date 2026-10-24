@@ -46,8 +46,8 @@ Saberemos que estamos certos quando:
 |---|---|---|---|---|
 | 1 | Arquitetura & Engine de Automação (TDD) | Regras de controle (ventilador, bomba, trava de água, disparo WhatsApp) testadas e 100% confiáveis | complete | .agents/plans/milestone-1-core-iot.plan.md |
 | 2 | Backend API & Simulador de Telemetria | Rotas para ingestão e broadcast de dados em tempo real com gerador de dados mock | complete | .agents/plans/milestone-1-core-iot.plan.md |
-| 3 | Frontend: Tela 1 (Cockpit da Estufa) | Painel visual moderno com badges de atuadores e medidores | pending | — |
-| 4 | Frontend: Tela 2 (Histórico) & Tela 3 (Reservatório) | Gráficos analíticos e interface do nível de água com alertas WhatsApp | pending | — |
+| 3 | Frontend: Tela 1 (Cockpit da Estufa) | Painel visual moderno com badges de atuadores e medidores | complete | .agents/plans/milestone-3-4-frontend.plan.md |
+| 4 | Frontend: Tela 2 (Histórico) & Tela 3 (Reservatório) | Gráficos analíticos e interface do nível de água com alertas WhatsApp | complete | .agents/plans/milestone-3-4-frontend.plan.md |
 
 ## Open Questions
 - [x] Canal de WhatsApp: utilizar integração direta com Evolution API / Twilio ou webhook mock com modal de mensagem demonstrativo para a feira? (Recomendado: suporte a ambos).

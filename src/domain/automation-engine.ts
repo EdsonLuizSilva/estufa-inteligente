@@ -1,4 +1,4 @@
-import { ActuatorState, SensorReadings } from './types.js';
+import { ActuatorOverrideConfig, ActuatorState, SensorReadings } from './types.js';
 
 export interface IWhatsAppNotifier {
   send(message: string): Promise<boolean>;
@@ -16,23 +16,43 @@ export class AutomationEngine {
 
   /**
    * Avalia os dados dos sensores e determina o estado dos atuadores e alarmes.
+   * Permite override manual para desligar os atuadores forçadamente.
    */
-  async evaluate(readings: SensorReadings): Promise<ActuatorState> {
+  async evaluate(
+    readings: SensorReadings,
+    overrideConfig: ActuatorOverrideConfig = { fan: 'AUTO', waterPump: 'AUTO' }
+  ): Promise<ActuatorState> {
+    const mode: ActuatorOverrideConfig = {
+      fan: overrideConfig?.fan ?? 'AUTO',
+      waterPump: overrideConfig?.waterPump ?? 'AUTO'
+    };
+
     const isHot = readings.temperature >= this.tempThreshold;
     const isSoilDry = readings.soilStatus === 'SECO';
     const isWaterLow = readings.waterLevel === 'BAIXO';
 
     // 1. Regra do Ventilador
-    const fanOn = isHot;
-    const fanReason = isHot
-      ? `Temperatura alta (${readings.temperature.toFixed(1)}°C >= ${this.tempThreshold}°C): ventilador acionado.`
-      : `Temperatura adequada (${readings.temperature.toFixed(1)}°C < ${this.tempThreshold}°C): ventilador desligado.`;
+    let fanOn = false;
+    let fanReason = '';
+
+    if (mode.fan === 'FORCE_OFF') {
+      fanOn = false;
+      fanReason = 'VENTILADOR DESLIGADO MANUALMENTE: intervenção direta do operador (modo manual).';
+    } else {
+      fanOn = isHot;
+      fanReason = isHot
+        ? `Temperatura alta (${readings.temperature.toFixed(1)}°C >= ${this.tempThreshold}°C): ventilador acionado.`
+        : `Temperatura adequada (${readings.temperature.toFixed(1)}°C < ${this.tempThreshold}°C): ventilador desligado.`;
+    }
 
     // 2. Regra da Bomba de Água com Interlock de Segurança
     let waterPumpOn = false;
     let waterPumpReason = '';
 
-    if (isWaterLow) {
+    if (mode.waterPump === 'FORCE_OFF') {
+      waterPumpOn = false;
+      waterPumpReason = 'BOMBA DESLIGADA MANUALMENTE: intervenção direta do operador (modo manual).';
+    } else if (isWaterLow) {
       waterPumpOn = false;
       waterPumpReason = 'BOMBA BLOQUEADA: reservatório com pouca água (risco de queima a seco).';
     } else if (isSoilDry) {
@@ -64,6 +84,7 @@ export class AutomationEngine {
       fanOn,
       waterPumpOn,
       alarmActive,
+      mode,
       reason: {
         fan: fanReason,
         waterPump: waterPumpReason,

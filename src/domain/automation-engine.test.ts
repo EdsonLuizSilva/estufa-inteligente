@@ -125,4 +125,53 @@ describe('AutomationEngine (TDD Core da Estufa)', () => {
       expect(mockWhatsAppSender.send).not.toHaveBeenCalled();
     });
   });
+
+  describe('Controle Manual & Override de Atuadores', () => {
+    it('deve manter o ventilador DESLIGADO quando override for FORCE_OFF, mesmo em temperatura alta (>= 28°C)', async () => {
+      const readings: SensorReadings = {
+        temperature: 32.0,
+        airHumidity: 50,
+        soilStatus: 'UMIDO',
+        waterLevel: 'CHEIO',
+        timestamp: new Date().toISOString()
+      };
+
+      const state = await engine.evaluate(readings, { fan: 'FORCE_OFF', waterPump: 'AUTO' });
+
+      expect(state.fanOn).toBe(false);
+      expect(state.mode.fan).toBe('FORCE_OFF');
+      expect(state.reason.fan).toContain('VENTILADOR DESLIGADO MANUALMENTE');
+    });
+
+    it('deve manter a bomba DESLIGADA quando override for FORCE_OFF, mesmo com solo SECO e água disponível', async () => {
+      const readings: SensorReadings = {
+        temperature: 24.0,
+        airHumidity: 50,
+        soilStatus: 'SECO',
+        waterLevel: 'CHEIO',
+        timestamp: new Date().toISOString()
+      };
+
+      const state = await engine.evaluate(readings, { fan: 'AUTO', waterPump: 'FORCE_OFF' });
+
+      expect(state.waterPumpOn).toBe(false);
+      expect(state.mode.waterPump).toBe('FORCE_OFF');
+      expect(state.reason.waterPump).toContain('BOMBA DESLIGADA MANUALMENTE');
+    });
+
+    it('deve retornar modo AUTO por padrão quando nenhum override for especificado', async () => {
+      const readings: SensorReadings = {
+        temperature: 24.0,
+        airHumidity: 60,
+        soilStatus: 'UMIDO',
+        waterLevel: 'CHEIO',
+        timestamp: new Date().toISOString()
+      };
+
+      const state = await engine.evaluate(readings);
+
+      expect(state.mode).toEqual({ fan: 'AUTO', waterPump: 'AUTO' });
+    });
+  });
 });
+

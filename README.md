@@ -10,6 +10,7 @@ Construído com base na metodologia de engenharia de software **ECC** (*Everythi
 1. **Tela 1: Cockpit em Tempo Real da Estufa**
    - Medição ao vivo de Temperatura (°C), Umidade do ar (%) e Umidade do Solo (Muito Molhado / Úmido / Seco).
    - Indicadores visuais animados de acionamento do **Ventilador** e da **Bomba de Água**.
+   - **Controle Manual de Atuadores:** Seletores de modo `Automático` vs `Desligar` manual direto na interface para intervenção imediata do operador.
    - Justificativa automática e transparente do motivo pelo qual cada atuador ligou ou desligou.
 
 2. **Tela 2: Dashboard de Séries Históricas**
@@ -51,3 +52,47 @@ cd frontend
 npm run dev
 ```
 A aplicação abrirá no seu navegador em: `http://localhost:3000`
+
+---
+
+## 🌐 Publicação na Nuvem (Render.com)
+
+O projeto está configurado para deploy unificado em um único serviço gratuito:
+
+1. Suba o projeto para o seu repositório no **GitHub**.
+2. No painel do **Render.com**, clique em **New +** > **Web Service**.
+3. Conecte seu repositório e configure:
+   - **Environment:** `Node`
+   - **Build Command:** `npm run build`
+   - **Start Command:** `npm start`
+   - **Plan:** Free
+4. O Render compilará o frontend React e a API Express, gerando seu link `https://...` seguro com HTTPS.
+
+---
+
+## 📡 Integração com ESP32 (IoT)
+
+O ESP32 envia os dados dos sensores e recebe o estado dos atuadores na mesma requisição:
+
+- **Endpoint:** `POST https://sua-url.onrender.com/api/telemetry`
+- **Headers:** `Content-Type: application/json`
+- **Corpo da Requisição (Sensores do ESP32):**
+  ```json
+  {
+    "temperature": 28.5,
+    "airHumidity": 72,
+    "soilStatus": "SECO",
+    "waterLevel": "CHEIO"
+  }
+  ```
+- **Resposta do Servidor (Atuadores e Interlocks):**
+  ```json
+  {
+    "actuators": {
+      "fanOn": true,
+      "waterPumpOn": true,
+      "alarmActive": false
+    }
+  }
+  ```
+O ESP32 deve ler os campos `fanOn` e `waterPumpOn` para acionar os pinos digitais dos relés.

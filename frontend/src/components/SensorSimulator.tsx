@@ -43,23 +43,23 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-700/80 rounded-3xl p-5 shadow-2xl backdrop-blur-xl">
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+    <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 rounded-3xl p-5 shadow-lg dark:shadow-2xl transition-colors duration-200">
+      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center space-x-2">
-          <Sliders className="w-5 h-5 text-emerald-400" />
-          <h4 className="font-bold text-white text-sm">Simulador de Sensores IoT (Bancada da Feira)</h4>
+          <Sliders className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          <h4 className="font-bold text-slate-900 dark:text-white text-sm">Simulador de Sensores IoT (Bancada da Feira)</h4>
         </div>
-        <span className="text-[11px] text-slate-400">
+        <span className="text-[11px] text-slate-500 dark:text-slate-400">
           Altere os valores para demonstrar os atuadores respondendo ao vivo
         </span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Controle 1: Temperatura */}
-        <div className="space-y-1.5 bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+        <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
           <div className="flex justify-between text-xs font-semibold">
-            <span className="text-slate-400">Temperatura:</span>
-            <span className={`font-mono ${temperature >= 28 ? 'text-orange-400 font-bold' : 'text-emerald-400'}`}>
+            <span className="text-slate-600 dark:text-slate-400">Temperatura:</span>
+            <span className={`font-mono ${temperature >= 28 ? 'text-orange-600 dark:text-orange-400 font-bold' : 'text-emerald-600 dark:text-emerald-400'}`}>
               {temperature.toFixed(1)} °C {temperature >= 28 && '🔥'}
             </span>
           </div>
@@ -72,18 +72,18 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
             onChange={(e) => setTemperature(parseFloat(e.target.value))}
             className="w-full accent-orange-500 cursor-pointer"
           />
-          <div className="flex justify-between text-[10px] text-slate-500">
+          <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500">
             <span>15°C (Frio)</span>
-            <span className="text-orange-400 font-bold">28°C (Liga Fan)</span>
+            <span className="text-orange-600 dark:text-orange-400 font-bold">28°C (Liga Fan)</span>
             <span>38°C (Quente)</span>
           </div>
         </div>
 
         {/* Controle 2: Umidade do Ar */}
-        <div className="space-y-1.5 bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+        <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
           <div className="flex justify-between text-xs font-semibold">
-            <span className="text-slate-400">Umidade do Ar:</span>
-            <span className="text-cyan-400 font-mono">{humidity} %</span>
+            <span className="text-slate-600 dark:text-slate-400">Umidade do Ar:</span>
+            <span className="text-cyan-600 dark:text-cyan-400 font-mono">{humidity} %</span>
           </div>
           <input 
             type="range" 
@@ -94,23 +94,23 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
             onChange={(e) => setHumidity(parseInt(e.target.value))}
             className="w-full accent-cyan-500 cursor-pointer"
           />
-          <div className="flex justify-between text-[10px] text-slate-500">
+          <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500">
             <span>20% (Seco)</span>
             <span>95% (Úmido)</span>
           </div>
         </div>
 
         {/* Controle 3: Umidade do Solo (Tri-estado) */}
-        <div className="space-y-1.5 bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
-          <span className="text-xs font-semibold text-slate-400 block">Solo:</span>
+        <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">Solo:</span>
           <div className="grid grid-cols-3 gap-1">
             <button
               type="button"
               onClick={() => setSoil('MUITO_MOLHADO')}
-              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all ${
+              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all cursor-pointer ${
                 soil === 'MUITO_MOLHADO' 
                   ? 'bg-blue-600 text-white border-blue-400 shadow-md' 
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               Molhado
@@ -118,10 +118,10 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
             <button
               type="button"
               onClick={() => setSoil('UMIDO')}
-              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all ${
+              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all cursor-pointer ${
                 soil === 'UMIDO' 
                   ? 'bg-emerald-600 text-white border-emerald-400 shadow-md' 
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               Úmido
@@ -129,10 +129,10 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
             <button
               type="button"
               onClick={() => setSoil('SECO')}
-              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all ${
+              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all cursor-pointer ${
                 soil === 'SECO' 
                   ? 'bg-amber-600 text-white border-amber-400 shadow-md' 
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               Seco (Rega)
@@ -141,16 +141,16 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
         </div>
 
         {/* Controle 4: Reservatório de Água */}
-        <div className="space-y-1.5 bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
-          <span className="text-xs font-semibold text-slate-400 block">Nível do Tanque:</span>
+        <div className="space-y-1.5 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 block">Nível do Tanque:</span>
           <div className="grid grid-cols-3 gap-1">
             <button
               type="button"
               onClick={() => handleWaterPreset('CHEIO')}
-              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all ${
+              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all cursor-pointer ${
                 water === 'CHEIO' 
                   ? 'bg-blue-600 text-white border-blue-400' 
-                  : 'bg-slate-900 text-slate-400 border-slate-800'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               Cheio (85%)
@@ -158,10 +158,10 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
             <button
               type="button"
               onClick={() => handleWaterPreset('MEDIO')}
-              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all ${
+              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all cursor-pointer ${
                 water === 'MEDIO' 
                   ? 'bg-cyan-600 text-white border-cyan-400' 
-                  : 'bg-slate-900 text-slate-400 border-slate-800'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               Médio (50%)
@@ -169,10 +169,10 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
             <button
               type="button"
               onClick={() => handleWaterPreset('BAIXO')}
-              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all ${
+              className={`text-[10px] font-bold py-1.5 rounded-lg border transition-all cursor-pointer ${
                 water === 'BAIXO' 
                   ? 'bg-red-600 text-white border-red-400 animate-pulse' 
-                  : 'bg-slate-900 text-slate-400 border-slate-800'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               Baixo (15%)

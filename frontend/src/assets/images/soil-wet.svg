@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Sombra e Brilho Molhado -->
+    <filter id="wet-soil-shadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#1d4ed8" flood-opacity="0.35" />
+    </filter>
+    <filter id="water-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Gradientes de Solo Encharcado e Água -->
+    <radialGradient id="wetEarthAura" cx="50%" cy="65%" r="55%">
+      <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.9" />
+      <stop offset="60%" stop-color="#7dd3fc" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Terra Escura Encharcada de Água -->
+    <linearGradient id="mudMound" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#451a03" />
+      <stop offset="50%" stop-color="#1c0b02" />
+      <stop offset="100%" stop-color="#0a0401" />
+    </linearGradient>
+
+    <!-- Poça d'Água Acumulada na Superfície -->
+    <linearGradient id="waterPuddle" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#0284c7" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0369a1" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Planta Densa e Molhada -->
+    <linearGradient id="wetStem" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#166534" />
+      <stop offset="50%" stop-color="#15803d" />
+      <stop offset="100%" stop-color="#22c55e" />
+    </linearGradient>
+
+    <linearGradient id="wetLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ade80" />
+      <stop offset="50%" stop-color="#16a34a" />
+      <stop offset="100%" stop-color="#14532d" />
+    </linearGradient>
+
+    <linearGradient id="dropGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+  </defs>
+
+  <!-- Aura Aquática Azul de Fundo -->
+  <circle cx="64" cy="74" r="44" fill="url(#wetEarthAura)" filter="url(#water-glow)" />
+
+  <!-- Sombra no Chão Saturado -->
+  <ellipse cx="64" cy="114" rx="50" ry="10" fill="#000000" opacity="0.3" />
+
+  <!-- Montículo de Terra Encharcada (Lama / Substrato Saturado) -->
+  <g>
+    <ellipse cx="64" cy="100" rx="48" ry="19" fill="url(#mudMound)" />
+
+    <!-- Lâmina / Poça d'Água Acumulada no Topo -->
+    <ellipse cx="64" cy="98" rx="42" ry="13" fill="url(#waterPuddle)" />
+
+    <!-- Reflexo Especular da Água na Poça -->
+    <path d="M 34 97 Q 64 92 94 97 Q 64 102 34 97 Z" fill="#bae6fd" opacity="0.6" />
+
+    <!-- Anéis Concêntricos de Ondulação / Respingos de Água -->
+    <ellipse cx="64" cy="98" rx="28" ry="8" fill="none" stroke="#e0f2fe" stroke-width="1.8" opacity="0.8" />
+    <ellipse cx="64" cy="98" rx="16" ry="4.5" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.9" />
+  </g>
+
+  <!-- Planta Saudável porém Saturada / Coberta de Água -->
+  <g filter="url(#wet-soil-shadow)">
+    <!-- Caule -->
+    <path d="M 64 96 C 64 78 62 58 64 36" stroke="url(#wetStem)" stroke-width="7" stroke-linecap="round" fill="none" />
+    <path d="M 64 54 C 64 45 64 38 64 34" stroke="#86efac" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8" />
+
+    <!-- Folha Esquerda Densa com Gotas -->
+    <path d="M 63 60 C 44 60 22 48 18 34 C 30 30 52 38 63 52 Z" fill="url(#wetLeaf)" />
+    <!-- Folha Direita com Gotas -->
+    <path d="M 64 48 C 76 34 94 24 110 26 C 108 42 94 56 65 54 Z" fill="url(#wetLeaf)" />
+
+    <!-- Múltiplas Gotas de Água Acumuladas nas Folhas -->
+    <!-- Gota Folha Direita -->
+    <circle cx="86" cy="30" r="4.5" fill="url(#dropGrad)" />
+    <ellipse cx="85" cy="28.5" rx="1.5" ry="1.2" fill="#ffffff" />
+
+    <!-- Gota Ponta Folha Direita prestes a pingar -->
+    <circle cx="106" cy="34" r="3.5" fill="url(#dropGrad)" />
+    <ellipse cx="105" cy="33" rx="1.2" ry="1" fill="#ffffff" />
+
+    <!-- Gota Folha Esquerda -->
+    <circle cx="36" cy="38" r="4" fill="url(#dropGrad)" />
+    <ellipse cx="35" cy="36.5" rx="1.4" ry="1.2" fill="#ffffff" />
+
+    <!-- Gotas de Respingo Saltando da Poça d'Água -->
+    <circle cx="28" cy="84" r="3.5" fill="url(#dropGrad)" />
+    <circle cx="100" cy="82" r="3" fill="url(#dropGrad)" />
+    <circle cx="80" cy="88" r="2.5" fill="url(#dropGrad)" />
+    <circle cx="48" cy="89" r="2.5" fill="url(#dropGrad)" />
+  </g>
+</svg>

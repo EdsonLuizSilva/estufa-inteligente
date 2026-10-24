@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Sombra e Brilho Crítico -->
+    <filter id="crit-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#dc2626" flood-opacity="0.6" />
+    </filter>
+    <filter id="flame-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Gradientes de Alerta Máximo -->
+    <radialGradient id="critAura" cx="50%" cy="60%" r="65%">
+      <stop offset="0%" stop-color="#fee2e2" stop-opacity="0.95" />
+      <stop offset="40%" stop-color="#fca5a5" stop-opacity="0.7" />
+      <stop offset="75%" stop-color="#ef4444" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#b91c1c" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="critGlassBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f87171" />
+    </linearGradient>
+
+    <!-- Mercúrio Escarlate Incandescente -->
+    <linearGradient id="critMercury" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#991b1b" />
+      <stop offset="25%" stop-color="#dc2626" />
+      <stop offset="60%" stop-color="#ef4444" />
+      <stop offset="85%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#b91c1c" />
+    </linearGradient>
+
+    <radialGradient id="critBulb" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="25%" stop-color="#f97316" />
+      <stop offset="60%" stop-color="#dc2626" />
+      <stop offset="100%" stop-color="#7f1d1d" />
+    </radialGradient>
+
+    <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="50%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#fef08a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Aura Vermelha Incandescente de Fundo -->
+  <circle cx="64" cy="80" r="46" fill="url(#critAura)" filter="url(#flame-glow)" />
+
+  <!-- Labaredas / Chamas de Calor Extremo no Topo -->
+  <g filter="url(#flame-glow)">
+    <!-- Chama Central -->
+    <path d="M 64 16 C 58 8 60 0 64 -6 C 68 0 70 8 64 16 Z" fill="url(#flameGrad)" />
+    <!-- Chama Esquerda -->
+    <path d="M 52 22 C 44 14 44 4 48 -2 C 52 6 56 12 52 22 Z" fill="url(#flameGrad)" opacity="0.9" />
+    <!-- Chama Direita -->
+    <path d="M 76 22 C 84 14 84 4 80 -2 C 76 6 72 12 76 22 Z" fill="url(#flameGrad)" opacity="0.9" />
+  </g>
+
+  <!-- Faíscas / Centelhas de Alerta -->
+  <g fill="#fef08a" opacity="0.95">
+    <circle cx="36" cy="18" r="2.5" />
+    <circle cx="92" cy="14" r="2.5" />
+    <circle cx="28" cy="46" r="2" />
+    <circle cx="102" cy="42" r="2" />
+  </g>
+
+  <!-- Corpo do Termômetro sob Pressão Máxima -->
+  <g filter="url(#crit-shadow)">
+    <!-- Vidro do Tubo + Bulbo -->
+    <rect x="52" y="16" width="24" height="66" rx="12" fill="#fef2f2" fill-opacity="0.55" stroke="url(#critGlassBorder)" stroke-width="2.8" />
+    <circle cx="64" cy="90" r="24" fill="#fef2f2" fill-opacity="0.55" stroke="url(#critGlassBorder)" stroke-width="2.8" />
+    <rect x="53.5" y="74" width="21" height="12" fill="#fef2f2" fill-opacity="0.55" />
+
+    <!-- Coluna de Mercúrio NO TOPO MÁXIMO (100% da escala, quase estourando, y=18) -->
+    <rect x="58" y="18" width="12" height="68" rx="6" fill="url(#critMercury)" />
+    <!-- Bulbo Esférico 3D Fervente -->
+    <circle cx="64" cy="90" r="19" fill="url(#critBulb)" />
+
+    <!-- Marcações de Medição em Vermelho Alerta -->
+    <line x1="74" y1="28" x2="86" y2="28" stroke="#dc2626" stroke-width="3" stroke-linecap="round" />
+    <line x1="74" y1="38" x2="84" y2="38" stroke="#dc2626" stroke-width="3" stroke-linecap="round" />
+    <line x1="74" y1="48" x2="82" y2="48" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="74" y1="58" x2="82" y2="58" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="74" y1="68" x2="80" y2="68" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" />
+
+    <!-- Menisco / Domo no Topo do Tubo Quase Transbordando -->
+    <ellipse cx="64" cy="18" rx="6" ry="3" fill="#fef08a" />
+
+    <!-- Brilho Especular do Tubo de Vidro -->
+    <path d="M 55 22 Q 55 18 59 18 L 61 18 Q 57 20 57 26 L 57 78 Q 57 82 55 84 Z" fill="#ffffff" fill-opacity="0.85" />
+
+    <!-- Reflexo no Bulbo -->
+    <ellipse cx="57" cy="83" rx="6" ry="3.5" transform="rotate(-35 57 83)" fill="#ffffff" fill-opacity="0.9" />
+    <circle cx="53" cy="94" r="2.5" fill="#ffffff" fill-opacity="0.8" />
+  </g>
+</svg>

@@ -4,10 +4,10 @@
   "description": "Backend e Engine IoT de automacao para Estufa Inteligente",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build && tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "start": "tsx src/server.ts",
+    "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts"
   },
   "dependencies": {

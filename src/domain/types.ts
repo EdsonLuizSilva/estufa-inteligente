@@ -15,10 +15,18 @@ export interface SensorReadings {
   timestamp: string; // ISO String
 }
 
+export type ActuatorMode = 'AUTO' | 'FORCE_OFF';
+
+export interface ActuatorOverrideConfig {
+  fan: ActuatorMode;
+  waterPump: ActuatorMode;
+}
+
 export interface ActuatorState {
   fanOn: boolean; // Ventilador (resfriamento da estufa)
   waterPumpOn: boolean; // Bomba de irrigação
   alarmActive: boolean; // Alerta de nível crítico acionado
+  mode: ActuatorOverrideConfig;
   reason: {
     fan: string;
     waterPump: string;

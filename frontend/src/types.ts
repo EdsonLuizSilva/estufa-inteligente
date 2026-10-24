@@ -10,10 +10,18 @@ export interface SensorReadings {
   timestamp: string;
 }
 
+export type ActuatorMode = 'AUTO' | 'FORCE_OFF';
+
+export interface ActuatorOverrideConfig {
+  fan: ActuatorMode;
+  waterPump: ActuatorMode;
+}
+
 export interface ActuatorState {
   fanOn: boolean;
   waterPumpOn: boolean;
   alarmActive: boolean;
+  mode?: ActuatorOverrideConfig;
   reason: {
     fan: string;
     waterPump: string;

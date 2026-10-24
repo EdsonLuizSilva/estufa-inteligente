@@ -2,7 +2,281 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+html.dark body {
+  background-color: #020617;
+  color: #f1f5f9;
+}
+
+/* Animações Reativas do Sensor de Temperatura */
+@keyframes shiver {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  20% {
+    transform: translateX(-3px) rotate(-1.5deg);
+  }
+  40% {
+    transform: translateX(2.5px) rotate(1deg);
+  }
+  60% {
+    transform: translateX(-2.5px) rotate(-1deg);
+  }
+  80% {
+    transform: translateX(2px) rotate(1.5deg);
+  }
+}
+
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.04);
+  }
+}
+
+@keyframes heatThrob {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 4px 10px rgba(249, 115, 22, 0.45));
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 10px 24px rgba(239, 68, 68, 0.75));
+  }
+}
+
+@keyframes heatShake {
+  0%, 100% {
+    transform: translate(0, 0) scale(1.08);
+    filter: drop-shadow(0 8px 20px rgba(239, 68, 68, 0.7));
+  }
+  15% {
+    transform: translate(-3px, -2px) scale(1.13) rotate(-2deg);
+  }
+  30% {
+    transform: translate(3px, 1px) scale(1.1) rotate(2deg);
+  }
+  45% {
+    transform: translate(-2px, 3px) scale(1.14) rotate(-1deg);
+  }
+  65% {
+    transform: translate(3px, -1px) scale(1.1) rotate(1.5deg);
+  }
+  85% {
+    transform: translate(-1px, 2px) scale(1.12) rotate(-1.5deg);
+  }
+}
+
+.animate-shiver {
+  animation: shiver 0.7s ease-in-out infinite !important;
+  will-change: transform;
+}
+
+.animate-gentle-float {
+  animation: gentleFloat 2.6s ease-in-out infinite !important;
+  will-change: transform;
+}
+
+.animate-heat-throb {
+  animation: heatThrob 1.1s ease-in-out infinite !important;
+  will-change: transform, filter;
+}
+
+.animate-heat-shake {
+  animation: heatShake 0.35s ease-in-out infinite !important;
+  will-change: transform, filter;
+}
+
+/* Animações Reativas do Sensor de Umidade do Ar */
+@keyframes dryFade {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(0.95) translateY(2px);
+    opacity: 0.8;
+  }
+}
+
+@keyframes waterBreathe {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 4px 12px rgba(6, 182, 212, 0.4));
+  }
+  50% {
+    transform: scale(1.06) translateY(-5px);
+    filter: drop-shadow(0 8px 18px rgba(6, 182, 212, 0.65));
+  }
+}
+
+@keyframes dropletPulse {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 4px 10px rgba(37, 99, 235, 0.4));
+  }
+  50% {
+    transform: scale(1.09) translateY(-6px);
+    filter: drop-shadow(0 10px 22px rgba(37, 99, 235, 0.7));
+  }
+}
+
+.animate-dry-fade {
+  animation: dryFade 1.6s ease-in-out infinite !important;
+  will-change: transform, opacity;
+}
+
+.animate-water-breathe {
+  animation: waterBreathe 2.4s ease-in-out infinite !important;
+  will-change: transform, filter;
+}
+
+.animate-droplet-pulse {
+  animation: dropletPulse 1.2s ease-in-out infinite !important;
+  will-change: transform, filter;
+}
+
+/* Animações Reativas do Sensor de Umidade do Solo */
+@keyframes soilWither {
+  0%, 100% {
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: scale(0.96) translateY(3px) rotate(-1.5deg);
+  }
+}
+
+@keyframes soilRipple {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 4px 10px rgba(2, 132, 199, 0.4));
+  }
+  50% {
+    transform: scale(1.07) translateY(-4px);
+    filter: drop-shadow(0 8px 18px rgba(2, 132, 199, 0.65));
+  }
+}
+
+.animate-soil-wither {
+  animation: soilWither 2s ease-in-out infinite !important;
+  will-change: transform;
+}
+
+.animate-soil-ripple {
+  animation: soilRipple 1.3s ease-in-out infinite !important;
+  will-change: transform, filter;
+}
+
+/* Animações Reativas do Tanque de Água */
+@keyframes tankWave1 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes tankWave2 {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes bubbleRise1 {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-90px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes bubbleRise2 {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.7;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-110px) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes bubbleRise3 {
+  0% {
+    transform: translateY(0) scale(0.7);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  75% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-80px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+.animate-tank-wave-1 {
+  animation: tankWave1 4s linear infinite;
+  will-change: transform;
+}
+
+.animate-tank-wave-2 {
+  animation: tankWave2 6s linear infinite;
+  will-change: transform;
+}
+
+.animate-bubble-1 {
+  animation: bubbleRise1 3s ease-in infinite;
+  will-change: transform, opacity;
+}
+
+.animate-bubble-2 {
+  animation: bubbleRise2 4.2s ease-in infinite 1s;
+  will-change: transform, opacity;
+}
+
+.animate-bubble-3 {
+  animation: bubbleRise3 3.5s ease-in infinite 0.5s;
+  will-change: transform, opacity;
 }
