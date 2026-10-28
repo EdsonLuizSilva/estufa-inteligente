@@ -42,7 +42,7 @@ export class AutomationEngine {
 
     const isHot = readings.temperature >= this.tempThreshold;
     const isSoilDry = readings.soilStatus === 'SECO';
-    const isWaterLow = readings.waterLevel === 'BAIXO';
+    const isWaterLow = readings.waterLevel === 'BAIXO' || (readings.waterPercentage !== undefined && readings.waterPercentage <= 25);
 
     // 1. Regra do Ventilador
     let fanOn = false;

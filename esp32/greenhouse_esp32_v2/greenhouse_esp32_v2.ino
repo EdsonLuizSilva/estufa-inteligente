@@ -225,12 +225,19 @@ void loop() {
     }
 
     // 1. Leituras dos Sensores Físicos
+    static float ultimaTemp = 25.0;
+    static float ultimaUmid = 60.0;
+
     float temperatura = dht.readTemperature();
     float umidadeAr = dht.readHumidity();
 
     if (isnan(temperatura) || isnan(umidadeAr)) {
-      Serial.println("[ERRO] Falha ao ler sensor DHT22! Verifique a fiação e o resistor.");
-      return;
+      Serial.println("[AVISO] Leitura momentânea do DHT22 instável (NaN). Reutilizando último valor válido.");
+      temperatura = ultimaTemp;
+      umidadeAr = ultimaUmid;
+    } else {
+      ultimaTemp = temperatura;
+      ultimaUmid = umidadeAr;
     }
 
     String soloStatus = processarUmidadeSolo();
@@ -297,6 +304,7 @@ void loop() {
     }
 
     http.end();
+    client.stop(); // Garante liberação imediata do socket TCP no ESP32
     Serial.println("--------------------------------------------------");
   }
 }

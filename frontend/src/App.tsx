@@ -73,14 +73,38 @@ export const App: React.FC = () => {
     try {
       const res = await fetch('/api/telemetry', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-simulation': 'true'
+        },
+        body: JSON.stringify({ ...data, isSimulation: true })
       });
       if (res.ok) {
         await fetchState();
       }
     } catch (err) {
       console.error('Falha ao enviar telemetria:', err);
+    }
+  };
+
+  const handleResetSimulation = async () => {
+    try {
+      const res = await fetch('/api/simulation/reset', { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.sensors && data.actuators) {
+          setSystemState(prev => ({
+            ...prev,
+            sensors: data.sensors,
+            actuators: data.actuators,
+            simulationActive: false
+          }));
+        } else {
+          await fetchState();
+        }
+      }
+    } catch (err) {
+      console.error('Falha ao resetar simulação:', err);
     }
   };
 
@@ -203,7 +227,11 @@ export const App: React.FC = () => {
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto w-full px-6 pt-6 flex-1 space-y-6">
         {/* Barra de Simulação Interativa (sempre acessível para a banca da feira) */}
-        <SensorSimulator onSimulate={handleSimulate} />
+        <SensorSimulator 
+          onSimulate={handleSimulate} 
+          simulationActive={systemState.simulationActive}
+          onResetSimulation={handleResetSimulation}
+        />
 
         {/* Renderização Condicional das 3 Telas */}
         {currentTab === 'cockpit' && <CockpitScreen state={systemState} onOverride={handleOverride} />}

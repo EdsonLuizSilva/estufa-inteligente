@@ -79,30 +79,62 @@ const TelemetrySchema = z.object({
  */
 app.get('/api/state', (req: Request, res: Response) => {
   const config = notifier.getConfig();
+  const lastAlertTimestamp = engine.getLastAlertTimestamp();
+  const cooldownMs = engine.getAlertCooldownMs();
+  const now = Date.now();
+  const isCritical = currentReadings.waterLevel === 'BAIXO' || (currentReadings.waterPercentage !== undefined && currentReadings.waterPercentage <= 25);
+  const nextAlertInMs = (lastAlertTimestamp > 0 && isCritical)
+    ? Math.max(0, cooldownMs - (now - lastAlertTimestamp))
+    : 0;
+
   res.json({
     sensors: currentReadings,
     actuators: currentActuators,
     notifications: notifier.getHistory(),
+    simulationActive: isSimulationActive,
     whatsappConfig: {
       targetPhone: config.targetPhone,
       hasApiKey: Boolean(config.apiKey && config.apiKey.length > 0),
-      enabled: config.enabled
+      enabled: config.enabled,
+      lastAlertTimestamp,
+      nextAlertInMs,
+      isCritical
     }
   });
 });
+
+let isSimulationActive = false;
+let simulationExpireTimer: NodeJS.Timeout | null = null;
+let latestPhysicalReadings: SensorReadings | null = null;
+
+/**
+ * Monitor Autônomo em Background (Heartbeat de 5 segundos)
+ * Garante que regras contínuas baseadas em tempo (como o envio a cada 5 minutos do alerta crítico)
+ * sejam avaliadas e disparadas pontualmente, mesmo se nenhum novo POST de telemetria chegar no momento.
+ */
+setInterval(async () => {
+  try {
+    currentActuators = await engine.evaluate(currentReadings, currentOverride);
+  } catch (err: any) {
+    console.error('[AutomationEngine] Erro no ciclo de avaliação autônomo:', err.message);
+  }
+}, 5000);
 
 /**
  * 2. Ingestão de telemetria dos sensores (ESP32 ou Simulador)
  */
 app.post('/api/telemetry', async (req: Request, res: Response) => {
+  res.setHeader('Connection', 'close');
+
   const result = TelemetrySchema.safeParse(req.body);
   if (!result.success) {
     return res.status(400).json({ error: 'Dados de telemetria inválidos', details: result.error.format() });
   }
 
+  const isFromSimulator = req.headers['x-simulation'] === 'true' || req.body?.isSimulation === true;
   const { temperature, airHumidity, soilStatus, waterLevel, waterPercentage } = result.data;
   
-  currentReadings = {
+  const incomingReadings: SensorReadings = {
     temperature,
     airHumidity,
     soilStatus: soilStatus as SoilStatus,
@@ -110,6 +142,37 @@ app.post('/api/telemetry', async (req: Request, res: Response) => {
     waterPercentage: waterPercentage ?? (waterLevel === 'BAIXO' ? 15 : waterLevel === 'MEDIO' ? 50 : 90),
     timestamp: new Date().toISOString()
   };
+
+  console.log(`[Telemetria] ${new Date().toLocaleTimeString('pt-BR')} [${isFromSimulator ? 'SIMULADOR' : 'ESP32 ' + req.ip}] -> Temp: ${incomingReadings.temperature}°C | Ar: ${incomingReadings.airHumidity}% | Solo: ${incomingReadings.soilStatus} | Água: ${incomingReadings.waterPercentage}% (${incomingReadings.waterLevel})`);
+
+  if (!isFromSimulator) {
+    // Guarda SEMPRE o dado físico mais recente do ESP32 em cache quente
+    latestPhysicalReadings = incomingReadings;
+
+    // Se o modo simulação estiver ativo, guardamos o dado no cache e mantemos os dados de simulação na tela
+    if (isSimulationActive) {
+      return res.json({
+        message: 'Telemetria do ESP32 salva em buffer de prontidão (Modo Simulação ativo no painel)',
+        simulationActive: true,
+        sensors: currentReadings,
+        actuators: currentActuators
+      });
+    }
+  } else {
+    // Veio do simulador
+    isSimulationActive = true;
+    if (simulationExpireTimer) clearTimeout(simulationExpireTimer);
+    simulationExpireTimer = setTimeout(() => {
+      isSimulationActive = false;
+      if (latestPhysicalReadings) {
+        currentReadings = latestPhysicalReadings;
+        engine.evaluate(currentReadings, currentOverride).then(acts => { currentActuators = acts; });
+      }
+      console.log('[Simulação] Período de simulação finalizado. Retomando dados físicos do ESP32.');
+    }, 15 * 60 * 1000);
+  }
+
+  currentReadings = incomingReadings;
 
   // Avalia as regras de negócio pela AutomationEngine do ECC com o override ativo
   currentActuators = await engine.evaluate(currentReadings, currentOverride);
@@ -220,6 +283,28 @@ app.post('/api/settings/whatsapp/test', async (req: Request, res: Response) => {
       : (lastNotification?.error || 'Falha no envio da mensagem. Verifique chave e número.'),
     success,
     notifications: notifier.getHistory()
+  });
+});
+
+/**
+ * 7. Controle do Modo Simulação
+ */
+app.post('/api/simulation/reset', async (req: Request, res: Response) => {
+  isSimulationActive = false;
+  if (simulationExpireTimer) clearTimeout(simulationExpireTimer);
+
+  // Restaura instantaneamente os últimos dados reais do ESP32 que foram recebidos no buffer
+  if (latestPhysicalReadings) {
+    currentReadings = latestPhysicalReadings;
+    currentActuators = await engine.evaluate(currentReadings, currentOverride);
+  }
+
+  console.log('[Simulação] Modo simulação desativado. Dados do ESP32 restaurados instantaneamente.');
+  res.json({ 
+    message: 'Modo simulação desativado. Leituras físicas dos sensores do ESP32 retomadas instantaneamente!',
+    simulationActive: false,
+    sensors: currentReadings,
+    actuators: currentActuators
   });
 });
 

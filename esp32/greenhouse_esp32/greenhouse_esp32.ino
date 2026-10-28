@@ -34,8 +34,7 @@ const char* ssid = "Angela";
 const char* password = "edson086";
 
 // URL da aplicação hospedada no Render
-//const char* serverUrl = "https://estufa-inteligente-95kv.onrender.com/api/telemetry";
-const char* serverUrl = "http://192.168.0.163:3001/api/telemetry";
+const char* serverUrl = "https://estufa-inteligente-95kv.onrender.com/api/telemetry";
 
 // Intervalo de envio para o servidor na nuvem (em milissegundos)
 const unsigned long INTERVALO_ENVIO = 5000; // 5 segundos (ideal para nuvem)
@@ -223,12 +222,19 @@ void loop() {
     }
 
     // 1. Leituras dos Sensores Físicos
+    static float ultimaTemp = 25.0;
+    static float ultimaUmid = 60.0;
+
     float temperatura = dht.readTemperature();
     float umidadeAr = dht.readHumidity();
 
     if (isnan(temperatura) || isnan(umidadeAr)) {
-      Serial.println("[ERRO] Falha ao ler sensor DHT22! Verifique a fiação e o resistor de pull-up.");
-      return;
+      Serial.println("[AVISO] Leitura momentânea do DHT22 instável (NaN). Reutilizando último valor válido.");
+      temperatura = ultimaTemp;
+      umidadeAr = ultimaUmid;
+    } else {
+      ultimaTemp = temperatura;
+      ultimaUmid = umidadeAr;
     }
 
     String soloStatus = processarUmidadeSolo();

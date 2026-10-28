@@ -43,6 +43,9 @@ export interface WhatsAppConfig {
   apiKey?: string;
   enabled?: boolean;
   hasApiKey?: boolean;
+  lastAlertTimestamp?: number;
+  nextAlertInMs?: number;
+  isCritical?: boolean;
 }
 
 export interface SystemState {
@@ -50,4 +53,5 @@ export interface SystemState {
   actuators: ActuatorState;
   notifications: WhatsAppNotification[];
   whatsappConfig?: WhatsAppConfig;
+  simulationActive?: boolean;
 }

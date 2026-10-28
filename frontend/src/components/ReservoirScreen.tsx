@@ -461,14 +461,22 @@ export const ReservoirScreen: React.FC<ReservoirScreenProps> = ({ state }) => {
           </div>
 
           {/* Rodapé com Política de Cooldown & Interlock */}
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 gap-1.5">
-            <span className="flex items-center gap-1">
-              <RefreshCw className="w-3 h-3 text-emerald-500" />
-              Intervalo de alerta: <b>A cada 5 minutos</b> enquanto o nível for crítico
-            </span>
-            <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+          <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <RefreshCw className={`w-3.5 h-3.5 ${sensors.waterLevel === 'BAIXO' ? 'text-amber-500 animate-spin' : 'text-emerald-500'}`} />
+              <span>
+                Intervalo de alerta: <b>A cada 5 minutos</b> enquanto for crítico
+                {sensors.waterLevel === 'BAIXO' && state.whatsappConfig?.nextAlertInMs !== undefined && state.whatsappConfig.nextAlertInMs > 0 && (
+                  <span className="ml-1.5 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-mono font-bold text-[10px] border border-amber-300 dark:border-amber-700/50">
+                    Próximo em: {Math.floor(state.whatsappConfig.nextAlertInMs / 60000)}m {Math.floor((state.whatsappConfig.nextAlertInMs % 60000) / 1000)}s
+                  </span>
+                )}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold pl-5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Interlock Ativo (Bomba Travada)
-            </span>
+            </div>
           </div>
         </div>
       </div>

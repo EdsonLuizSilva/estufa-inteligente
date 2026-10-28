@@ -10,9 +10,15 @@ interface SensorSimulatorProps {
     waterLevel: WaterLevel;
     waterPercentage: number;
   }) => Promise<void>;
+  simulationActive?: boolean;
+  onResetSimulation?: () => Promise<void>;
 }
 
-export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) => {
+export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ 
+  onSimulate,
+  simulationActive,
+  onResetSimulation
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [temperature, setTemperature] = useState(25.0);
   const [humidity, setHumidity] = useState(65);
@@ -51,6 +57,12 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
             <Sliders className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             <h4 className="font-bold text-slate-900 dark:text-white text-sm">Simulador de Sensores IoT (Bancada da Feira)</h4>
           </div>
+          {simulationActive && (
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/60 flex items-center gap-1.5 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              Simulação Ativa (ESP32 em espera)
+            </span>
+          )}
           <button 
             type="button"
             onClick={() => setIsOpen(!isOpen)}
@@ -198,11 +210,27 @@ export const SensorSimulator: React.FC<SensorSimulatorProps> = ({ onSimulate }) 
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-end">
+          <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            {simulationActive ? (
+              <button
+                type="button"
+                onClick={onResetSimulation}
+                className="w-full sm:w-auto bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/80 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 font-bold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center space-x-2 transition-all cursor-pointer shadow-sm active:scale-95"
+                title="Cancela os dados simulados e volta imediatamente para os sensores físicos do ESP32"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span>Encerrar Simulação (Voltar ao ESP32)</span>
+              </button>
+            ) : (
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 italic hidden sm:inline">
+                Ao aplicar, o sistema mantém os dados simulados para teste sem ser sobrescrito pelo ESP32.
+              </span>
+            )}
+
             <button
               onClick={handleApply}
               disabled={sending}
-              className="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center space-x-2 transition-all cursor-pointer"
+              className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center justify-center space-x-2 transition-all cursor-pointer"
             >
               {sending ? (
                 <>
