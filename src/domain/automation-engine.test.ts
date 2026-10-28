@@ -91,13 +91,14 @@ describe('AutomationEngine (TDD Core da Estufa)', () => {
     });
   });
 
-  describe('Alerta e Notificação WhatsApp (Nível do Reservatório)', () => {
-    it('deve disparar notificação no WhatsApp e ativar alarme se o nível de água for BAIXO', async () => {
+  describe('Alerta e Notificação WhatsApp (Nível do Reservatório a cada 5 minutos)', () => {
+    it('deve disparar notificação com o nível detalhado (porcentagem e litros) e ativar alarme se o nível de água for BAIXO', async () => {
       const readings: SensorReadings = {
         temperature: 25.0,
         airHumidity: 60,
         soilStatus: 'UMIDO',
         waterLevel: 'BAIXO',
+        waterPercentage: 12,
         timestamp: new Date().toISOString()
       };
 
@@ -106,7 +107,7 @@ describe('AutomationEngine (TDD Core da Estufa)', () => {
       expect(state.alarmActive).toBe(true);
       expect(mockWhatsAppSender.send).toHaveBeenCalledTimes(1);
       expect(mockWhatsAppSender.send).toHaveBeenCalledWith(
-        expect.stringContaining('Reservatório com nível crítico de água')
+        expect.stringContaining('12% - ~24L de 200L restantes')
       );
     });
 
@@ -123,6 +124,82 @@ describe('AutomationEngine (TDD Core da Estufa)', () => {
 
       expect(state.alarmActive).toBe(false);
       expect(mockWhatsAppSender.send).not.toHaveBeenCalled();
+    });
+
+    it('deve respeitar o intervalo de 5 minutos (300.000 ms) entre mensagens enquanto o nível continuar crítico', async () => {
+      vi.useFakeTimers();
+      const baseTime = new Date('2026-10-27T12:00:00.000Z');
+      vi.setSystemTime(baseTime);
+
+      const criticalReadings: SensorReadings = {
+        temperature: 25.0,
+        airHumidity: 60,
+        soilStatus: 'UMIDO',
+        waterLevel: 'BAIXO',
+        waterPercentage: 10,
+        timestamp: baseTime.toISOString()
+      };
+
+      // 1° Envio: Imediato
+      await engine.evaluate(criticalReadings);
+      expect(mockWhatsAppSender.send).toHaveBeenCalledTimes(1);
+
+      // Avança 3 minutos (180.000 ms) -> Menos de 5 minutos, NÃO deve enviar
+      vi.advanceTimersByTime(3 * 60 * 1000);
+      await engine.evaluate(criticalReadings);
+      expect(mockWhatsAppSender.send).toHaveBeenCalledTimes(1);
+
+      // Avança mais 2 minutos (total 5 minutos = 300.000 ms) -> DEVE enviar o 2° alerta
+      vi.advanceTimersByTime(2 * 60 * 1000);
+      await engine.evaluate(criticalReadings);
+      expect(mockWhatsAppSender.send).toHaveBeenCalledTimes(2);
+
+      // Avança mais 5 minutos (total 10 minutos) -> DEVE enviar o 3° alerta
+      vi.advanceTimersByTime(5 * 60 * 1000);
+      await engine.evaluate(criticalReadings);
+      expect(mockWhatsAppSender.send).toHaveBeenCalledTimes(3);
+
+      vi.useRealTimers();
+    });
+
+    it('deve rearmar o envio imediato se o nível subir para normal e voltar a ficar crítico no futuro', async () => {
+      vi.useFakeTimers();
+      const baseTime = new Date('2026-10-27T12:00:00.000Z');
+      vi.setSystemTime(baseTime);
+
+      const criticalReadings: SensorReadings = {
+        temperature: 25.0,
+        airHumidity: 60,
+        soilStatus: 'UMIDO',
+        waterLevel: 'BAIXO',
+        waterPercentage: 10,
+        timestamp: baseTime.toISOString()
+      };
+
+      const normalReadings: SensorReadings = {
+        temperature: 25.0,
+        airHumidity: 60,
+        soilStatus: 'UMIDO',
+        waterLevel: 'CHEIO',
+        waterPercentage: 90,
+        timestamp: baseTime.toISOString()
+      };
+
+      // 1° Disparo crítico
+      await engine.evaluate(criticalReadings);
+      expect(mockWhatsAppSender.send).toHaveBeenCalledTimes(1);
+
+      // Água é reabastecida para normal (CHEIO)
+      vi.advanceTimersByTime(60 * 1000); // 1 minuto depois
+      await engine.evaluate(normalReadings);
+      expect(engine.getLastAlertTimestamp()).toBe(0); // Cooldown rearmado/resetado
+
+      // Nível cai novamente para crítico 30 segundos depois -> DEVE disparar imediatamente sem esperar os 5 minutos do ciclo anterior
+      vi.advanceTimersByTime(30 * 1000);
+      await engine.evaluate(criticalReadings);
+      expect(mockWhatsAppSender.send).toHaveBeenCalledTimes(2);
+
+      vi.useRealTimers();
     });
   });
 

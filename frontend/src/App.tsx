@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Sprout, 
   LayoutDashboard, 
   LineChart, 
   Waves, 
@@ -13,6 +12,7 @@ import { HistoryScreen } from './components/HistoryScreen.js';
 import { ReservoirScreen } from './components/ReservoirScreen.js';
 import { SensorSimulator } from './components/SensorSimulator.js';
 import { ThemeToggle } from './components/ThemeToggle.js';
+import { EcoTechLogo } from './components/EcoTechLogo.js';
 
 type Tab = 'cockpit' | 'history' | 'reservoir';
 
@@ -104,18 +104,24 @@ export const App: React.FC = () => {
       {/* Top Header */}
       <header className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 backdrop-blur-md sticky top-0 z-30 px-6 py-4 transition-colors duration-200">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-              <Sprout className="w-6 h-6" />
+          <div className="flex items-center space-x-3.5">
+            <div className="p-2 rounded-2xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-cyan-500/15 dark:from-emerald-500/25 dark:to-cyan-500/25 border border-emerald-500/30 shadow-sm flex items-center justify-center shrink-0">
+              <EcoTechLogo className="w-8 h-8" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h1 className="text-lg font-black tracking-tight text-slate-900 dark:text-white">Estufa Inteligente IoT</h1>
-                <span className="text-[10px] font-bold bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full uppercase">
-                  Feira de Ciências
-                </span>
+                <h1 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 dark:from-emerald-400 dark:via-emerald-300 dark:to-cyan-400 bg-clip-text text-transparent">
+                    EcoTech
+                  </span>
+                  <span className="text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-500/15 dark:bg-emerald-400/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 tracking-wider">
+                    IoT
+                  </span>
+                </h1>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Sistema Autônomo com Interlock e Notificação WhatsApp</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Estufa Inteligente e Sustentável com Controle por Aplicativo
+              </p>
             </div>
           </div>
 

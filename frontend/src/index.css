@@ -280,3 +280,22 @@ html.dark body {
   animation: bubbleRise3 3.5s ease-in infinite 0.5s;
   will-change: transform, opacity;
 }
+
+/* Transições suaves de expansão/recolhimento (Accordion) */
+.smooth-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 350ms cubic-bezier(0.4, 0, 0.2, 1), opacity 300ms ease, margin 300ms ease;
+  overflow: hidden;
+}
+
+.smooth-collapse.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.smooth-collapse-inner {
+  overflow: hidden;
+  min-height: 0;
+}

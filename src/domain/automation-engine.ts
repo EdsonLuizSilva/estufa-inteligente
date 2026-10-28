@@ -8,10 +8,23 @@ export class AutomationEngine {
   private tempThreshold = 28.0; // °C
   private notifier?: IWhatsAppNotifier;
   private lastAlertTimestamp = 0;
-  private alertCooldownMs = 60000; // 1 minuto de intervalo entre mensagens
+  private alertCooldownMs = 300000; // 5 minutos (300.000 ms) entre alertas consecutivos
 
-  constructor(notifier?: IWhatsAppNotifier) {
+  constructor(notifier?: IWhatsAppNotifier, alertCooldownMs = 300000) {
     this.notifier = notifier;
+    this.alertCooldownMs = alertCooldownMs;
+  }
+
+  getLastAlertTimestamp(): number {
+    return this.lastAlertTimestamp;
+  }
+
+  getAlertCooldownMs(): number {
+    return this.alertCooldownMs;
+  }
+
+  resetAlertCooldown(): void {
+    this.lastAlertTimestamp = 0;
   }
 
   /**
@@ -74,10 +87,18 @@ export class AutomationEngine {
       const now = Date.now();
       if (this.notifier && (now - this.lastAlertTimestamp >= this.alertCooldownMs)) {
         this.lastAlertTimestamp = now;
+
+        const percentage = readings.waterPercentage ?? 15;
+        const totalCapacity = 200; // 200 Litros de capacidade padrão
+        const remainingLiters = Math.round((totalCapacity * percentage) / 100);
+
         await this.notifier.send(
-          `⚠️ [Estufa Inteligente] Alerta Crítico! Reservatório com nível crítico de água (BAIXO). A bomba de irrigação foi travada. Favor abastecer imediatamente!`
+          `⚠️ [Estufa Inteligente] ALERTA CRÍTICO: Nível de água crítico no reservatório (${percentage}% - ~${remainingLiters}L de ${totalCapacity}L restantes). A bomba de irrigação foi travada. Reabasteça o reservatório imediatamente!`
         );
       }
+    } else {
+      // Quando o nível for restaurado (MEDIO ou CHEIO), reinicia o timestamp para disparar imediatamente caso venha a baixar novamente no futuro
+      this.lastAlertTimestamp = 0;
     }
 
     return {

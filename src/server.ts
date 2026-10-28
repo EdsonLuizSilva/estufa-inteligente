@@ -78,10 +78,16 @@ const TelemetrySchema = z.object({
  * 1. Obter estado atual dos sensores, atuadores e último alerta
  */
 app.get('/api/state', (req: Request, res: Response) => {
+  const config = notifier.getConfig();
   res.json({
     sensors: currentReadings,
     actuators: currentActuators,
-    notifications: notifier.getHistory()
+    notifications: notifier.getHistory(),
+    whatsappConfig: {
+      targetPhone: config.targetPhone,
+      hasApiKey: Boolean(config.apiKey && config.apiKey.length > 0),
+      enabled: config.enabled
+    }
   });
 });
 
@@ -161,6 +167,62 @@ app.get('/api/notifications', (req: Request, res: Response) => {
   res.json(notifier.getHistory());
 });
 
+/**
+ * 6. Configurações de Notificação WhatsApp (CallMeBot)
+ */
+const WhatsAppSettingsSchema = z.object({
+  targetPhone: z.string().min(8, 'Número de telefone deve conter DDD e número'),
+  apiKey: z.string().optional(),
+  enabled: z.boolean().optional()
+});
+
+app.get('/api/settings/whatsapp', (req: Request, res: Response) => {
+  const config = notifier.getConfig();
+  res.json({
+    targetPhone: config.targetPhone,
+    apiKey: config.apiKey,
+    enabled: config.enabled,
+    hasApiKey: Boolean(config.apiKey && config.apiKey.length > 0)
+  });
+});
+
+app.post('/api/settings/whatsapp', (req: Request, res: Response) => {
+  const result = WhatsAppSettingsSchema.safeParse(req.body);
+  if (!result.success) {
+    return res.status(400).json({ error: 'Configuração inválida', details: result.error.format() });
+  }
+
+  const updated = notifier.updateConfig(result.data);
+  res.json({
+    message: 'Configurações do WhatsApp atualizadas com sucesso!',
+    settings: {
+      targetPhone: updated.targetPhone,
+      hasApiKey: Boolean(updated.apiKey && updated.apiKey.length > 0),
+      enabled: updated.enabled
+    }
+  });
+});
+
+app.post('/api/settings/whatsapp/test', async (req: Request, res: Response) => {
+  if (req.body && req.body.targetPhone) {
+    notifier.updateConfig({
+      targetPhone: req.body.targetPhone,
+      apiKey: req.body.apiKey
+    });
+  }
+
+  const success = await notifier.sendTestMessage();
+  const lastNotification = notifier.getHistory()[0];
+
+  res.json({
+    message: success 
+      ? 'Mensagem de teste enviada com sucesso!' 
+      : (lastNotification?.error || 'Falha no envio da mensagem. Verifique chave e número.'),
+    success,
+    notifications: notifier.getHistory()
+  });
+});
+
 // Em produção (como no Render), serve os arquivos estáticos do frontend compilado
 const frontendDist = path.resolve(process.cwd(), 'frontend', 'dist');
 if (fs.existsSync(frontendDist)) {
@@ -172,6 +234,17 @@ if (fs.existsSync(frontendDist)) {
     res.sendFile(path.join(frontendDist, 'index.html'));
   });
 }
+
+// Middleware global para capturar erros (ex: conexões abortadas pelo ESP32/cliente)
+app.use((err: any, req: Request, res: Response, next: any) => {
+  if (err && (err.type === 'request.aborted' || err.message === 'request aborted')) {
+    return;
+  }
+  console.error('[Server Error]', err);
+  if (!res.headersSent) {
+    res.status(err.status || 500).json({ error: err.message || 'Erro interno no servidor' });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`[Greenhouse Monitor Backend] Servidor rodando na porta ${PORT}`);

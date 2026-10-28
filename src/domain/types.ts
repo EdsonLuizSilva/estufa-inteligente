@@ -39,6 +39,14 @@ export interface WhatsAppNotification {
   message: string;
   timestamp: string;
   sent: boolean;
+  provider?: string;
+  error?: string;
+}
+
+export interface WhatsAppConfig {
+  targetPhone: string;
+  apiKey: string;
+  enabled: boolean;
 }
 
 export interface SystemState {
